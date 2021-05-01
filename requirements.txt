@@ -1,2 +1,5 @@
 flask==1.1.2
 python-dotenv
+numpy
+opencv-python
+dlib

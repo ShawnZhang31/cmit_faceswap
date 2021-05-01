@@ -124,3 +124,6 @@ dmypy.json
 .pyre/
 
 .vscode
+
+res/*
+!res/.gitkeep

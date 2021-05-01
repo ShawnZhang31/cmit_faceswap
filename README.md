@@ -12,5 +12,6 @@
 ├── faceswap    # face swap核心计算模块
 ├── faceswap_web    # face swap flask模块
 ├── requirements.txt    # 项目依赖package
+├── res             # 项目资源存放路径
 └── venv
 ```

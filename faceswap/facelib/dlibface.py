@@ -4,8 +4,10 @@ import cv2
 import os
 import sys
 
-from ..faceswap_utils.ModelLoadException import ModelLoadError
-from ..faceswap_utils.ImageException import ImageError
+# from faceswap.faceswap_utils.ModelLoadException import ModelLoadError
+from faceswap.faceswap_utils.ModelLoadException import ModelLoadError
+# from faceswap.faceswap_utils.ImageException import ImageError
+from faceswap.faceswap_utils.ImageException import ImageError
 
 class DlibToolClass():
     
@@ -15,15 +17,8 @@ class DlibToolClass():
     # def __init__(self):
     #     pass
 
-    def __init__(self,path):
-        if path is None:
-            raise ModelLoadError(message='模型路径为空')
-        if os.path.exists(path) is False:
-            raise ModelLoadError(message='模型路径不存在')
-        try:
-            self.landmark_predictor = dlib.shape_predictor(path)
-        except IOError:
-            raise ModelLoadError(message='加载模型出错')
+    def __init__(self, dlib_shape_predictor):
+        self.landmark_predictor = dlib_shape_predictor
     
     def imgvalidate(self,img):
         if img is None:

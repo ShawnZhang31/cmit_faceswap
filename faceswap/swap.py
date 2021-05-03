@@ -1,15 +1,16 @@
 import cv2
 import numpy as np
+import dlib
 # from facedlib.dlibface import DlibToolClass
-from .facelib import DlibToolClass, GenderToolClass
+from faceswap.facelib import DlibToolClass, GenderToolClass
 
-from .faceswap_utils.ImageException import ImageError
-from .faceswap_utils.ModelLoadException import ModelLoadError
+from faceswap.faceswap_utils.ImageException import ImageError
+from faceswap.faceswap_utils.ModelLoadException import ModelLoadError
 
 class FaceSwap:
     
-    def __init__(self, dlib_shape_model_path):
-        self.dlibTool = DlibToolClass(dlib_shape_model_path)
+    def __init__(self, dlib_shape_predictor):
+        self.dlibTool = DlibToolClass(dlib_shape_predictor)
 
     def get_image_size(self,image):
         """
@@ -119,9 +120,9 @@ if __name__ == "__main__":
     genderClassfier = GenderToolClass(gender_prototxt_file_path, gender_net_file_path)
     img1_gender = genderClassfier.getGender(img1)
     template_name = "template_F.png"
-    if img1_gender == 'Male':
+    if img1_gender == 'male':
         template_name = "template_M.png"
-    elif img1_gender == 'Female':
+    elif img1_gender == 'female':
         template_name = "template_F.png"
     else:
         pass
@@ -129,8 +130,8 @@ if __name__ == "__main__":
 
     img2 = cv2.imread(img2_path)
 
-
-    swapface = FaceSwap(dlib_shape_model_path)
+    dlib_landmark_predictor = dlib.shape_predictor(dlib_shape_model_path)
+    swapface = FaceSwap(dlib_landmark_predictor)
     merge = swapface.swap_face(img1, img2)
     cv2.imshow("merge", merge)
     cv2.waitKey(0)

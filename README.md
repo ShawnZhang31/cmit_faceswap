@@ -7,7 +7,7 @@
 ```
 .
 ├── README.md
-├── app.py      # flask应用实例
+├── run.py      # flask应用实例
 ├── config.py   # flask应用配置 
 ├── faceswap    # face swap核心计算模块
 ├── faceswap_web    # face swap flask模块

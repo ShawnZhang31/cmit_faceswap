@@ -103,6 +103,7 @@ def warpTriangle(img1, img2, t1, t2):
     mask = np.zeros((r1[3], r1[2], 3), dtype=np.float32)
     cv2.fillConvexPoly(mask, np.int32(t1Rect), (1.0, 1.0, 1.0), 16, 0)
 
+
     # 在三角形区域使用仿射变换
     img2Rect = img2[r2[1]:r2[1] + r2[3], r2[0]:r2[0] + r2[2]]
     size = (r1[2], r1[3])
@@ -113,3 +114,23 @@ def warpTriangle(img1, img2, t1, t2):
     # 拷贝变换区域到输出图像上
     img1[r1[1]:r1[1]+r1[3], r1[0]:r1[0]+r1[2]] = img1[r1[1]:r1[1]+r1[3], r1[0]:r1[0]+r1[2]] * ((1.0, 1.0, 1.0) - mask)
     img1[r1[1]:r1[1]+r1[3], r1[0]:r1[0]+r1[2]] = img1[r1[1]:r1[1]+r1[3], r1[0]:r1[0]+r1[2]] + img1Rect
+
+def correctColors(im1, im2, point1, point2):
+    """
+    颜色校正
+    """
+    
+    blurAmount = 0.5 * np.linalg.norm(point1 - point2)
+    blurAmount = int(blurAmount)
+
+    if blurAmount % 2 == 0:
+        blurAmount += 1
+
+    im1Blur = cv2.blur(im1, (blurAmount, blurAmount), 0)
+    im2Blur = cv2.blur(im2, (blurAmount, blurAmount), 0)
+
+    # 避免分母为0的错误
+    im2Blur += (2 * (im2Blur <= 1)).astype(im2Blur.dtype)
+    ret = np.uint8((im2.astype(np.float32) * im1Blur.astype(np.float32) / im2Blur.astype(np.float32)).clip(0,255))
+
+    return ret

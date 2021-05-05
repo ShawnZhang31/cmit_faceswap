@@ -1,6 +1,8 @@
+import argparse
 import cv2
 import numpy as np
 import dlib
+import argparse
 # from facedlib.dlibface import DlibToolClass
 from faceswap.facelib import DlibToolClass, GenderToolClass
 
@@ -110,28 +112,30 @@ if __name__ == "__main__":
     gender_net_file_path = "./res/gender/gender_net.caffemodel"
 
     dlib_shape_model_path = "./res/dlib/shape_predictor_68_face_landmarks.dat"
-    img1_path = "./res/img1.jpeg"
-    # img1_path = "./res/img3.png"
-    tempalte_path = "./res/template1/"
+
+    parser = argparse.ArgumentParser(description='Meadiapip face swap')
+    parser.add_argument('-i', '--image_path', default='./res/template1/template_F.png', type=str,
+                        help='path to input image')
+    parser.add_argument('-r', '--ref_path', default='./res/img1.jpeg', type=str, 
+                        help='path to reference image(texture ref)')
+    args = parser.parse_args()
+    image = cv2.imread(args.image_path, -1)
+    img_height, img_width, img_channel = image.shape
+
+    image_ref = cv2.imread(args.ref_path, -1)
+    print(image.shape)
+    print(image_ref.shape)
 
 
-    img1 = cv2.imread(img1_path)
 
     genderClassfier = GenderToolClass(gender_prototxt_file_path, gender_net_file_path)
-    img1_gender = genderClassfier.getGender(img1)
-    template_name = "template_F.png"
-    if img1_gender == 'male':
-        template_name = "template_M.png"
-    elif img1_gender == 'female':
-        template_name = "template_F.png"
-    else:
-        pass
-    img2_path = tempalte_path + template_name
+    img_ref_gender = genderClassfier.getGender(image_ref)
+    print(img_ref_gender)
 
-    img2 = cv2.imread(img2_path)
+
 
     dlib_landmark_predictor = dlib.shape_predictor(dlib_shape_model_path)
     swapface = FaceSwap(dlib_landmark_predictor)
-    merge = swapface.swap_face(img1, img2)
+    merge = swapface.swap_face(image_ref, image)
     cv2.imshow("merge", merge)
     cv2.waitKey(0)

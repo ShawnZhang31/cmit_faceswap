@@ -3,3 +3,7 @@ python-dotenv
 numpy
 opencv-python
 dlib
+scikit-image
+scipy
+tensorflow==1.14.0
+mediapipe

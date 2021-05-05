@@ -128,4 +128,5 @@ dmypy.json
 res/*
 !res/.gitkeep
 
-/docker_sync
+logs/*
+!logs/.gitkeep

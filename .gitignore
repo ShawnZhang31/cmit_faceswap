@@ -124,12 +124,8 @@ dmypy.json
 
 .vscode
 
-res/*
-!res/.gitkeep
-!res/dlib/*
-!res/gender/*
-!res/templates/template1/*
-!res/templates/templates.yaml
+
+res/templates/test/*
 
 logs/*
 !logs/.gitkeep

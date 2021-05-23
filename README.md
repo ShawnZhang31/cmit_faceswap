@@ -2,7 +2,26 @@
 
 面部融合应用, 效果如下:     
 
-<div style="text-align: center; ">
+<table>
+  <tr>
+     <td align="center">原图</td>
+     <td align="center">合成模板</td>
+     <td align="center">合成效果图</td>
+  </tr>
+  <tr>
+    <td><img src="./docs/liushishi.png" width=100%></td>
+    <td><img src="./docs/female.jpg" width=100%></td>
+    <td><img src="./docs/merge.jpg" width=100%></td>
+  </tr>
+ </table>
+
+<!-- <p float="left">
+  <img src="./docs/liushishi.png" width="255" />
+  <img src="./docs/female.jpg" width="200" /> 
+  <img src="./docs/merge.jpg" width="200" />
+</p> -->
+
+<!-- <div style="text-align: center; ">
     <ul style="display: table">
         <li style="display: table-cell; list-style: none; vertical-align: middle; width:34%"><img src="./docs/liushishi.png" alt="source"></li>
         <li style="display: table-cell; list-style: none; vertical-align: middle; font-size: xx-large; ">+</li>
@@ -11,10 +30,10 @@
         <li style="display: table-cell; list-style: none; vertical-align: middle;width:33%"><img  src="./docs/merge.jpg" alt="result"></li>
     </ul>
     <h6>人脸融合示意</h6>
-</div>
+</div> -->
 
 ## 1. 部署说明
-将代码克隆到部署服务器上，按照如下步骤配置自的不更工程
+将代码克隆到部署服务器上，按照如下步骤配置自己的部署工程
 ### 1.1 部署要求
 - Docker 18.03+
 ### 1.2 配置面部融合的模板

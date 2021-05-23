@@ -97,7 +97,6 @@ celerybeat-schedule
 *.sage.py
 
 # Environments
-.env
 .venv
 env/
 venv/
@@ -127,6 +126,11 @@ dmypy.json
 
 res/*
 !res/.gitkeep
+!res/dlib/*
+!res/gender/*
+!res/templates/template1/*
+!res/templates/templates.yaml
 
 logs/*
 !logs/.gitkeep
+

@@ -68,7 +68,7 @@ def faceswap_v1(*args, **kwargs):
     # merge = dlibFaceSwap(template_img, image_ref)
     merge = dlibFaceSwap(template_face, image_ref, with_hair=False, template_hair=template_hair)
     
-    # cv2.imwrite("./merge.jpg", merge)
+    cv2.imwrite("./merge.jpg", merge)
 
     base64_string = base64EncodeImage(merge)
 

@@ -96,12 +96,18 @@ class FaceSwap:
             raise ImageError("no face detected")
         img1_size=self.get_image_size(img1)
         img1_mask = self.get_face_mask(img1_size, np.array(points1,dtype=np.int))  # 脸图人脸掩模
+        # cv2.imshow("img1_mask", img1_mask)
+        # cv2.waitKey(0)
         img2_size = self.get_image_size(img2)  # 摄像头图片大小
         img2_mask = self.get_face_mask(img2_size, np.array(points2,dtype=np.int))  # 摄像头图片人脸掩模
+        # cv2.imshow("img2_mask", img2_mask)
+        # cv2.waitKey(0)
         affine_img1 = self.get_affine_image(img1, img2, points1, points2)  # im1（脸图）仿射变换后的图片
         affine_img1_mask = self.get_affine_image(img1_mask, img2, points1, points2)  # im1（脸图）仿射变换后的图片的人脸掩模
 
         union_mask = self.get_mask_union(img2_mask, affine_img1_mask)  # 掩模合并
+        # cv2.imshow("union_mask", union_mask)
+        # cv2.waitKey(0)
         point = self.get_mask_center_point(affine_img1_mask)  # im1（脸图）仿射变换后的图片的人脸掩模的中心点
         seamless_im = cv2.seamlessClone(affine_img1, img2, mask=union_mask, p=point, flags=cv2.NORMAL_CLONE)  # 进行泊松融合
         return seamless_im

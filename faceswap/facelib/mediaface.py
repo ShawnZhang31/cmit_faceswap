@@ -151,12 +151,12 @@ FACE_CONNECTIONS = ([
 def getFaceCountour():
     return [10, 338, 297, 332, 284, 251, 389, 356, 454, 323, 361, 288, 397, 365, 379, 378, 400, 377, 152, 148, 176, 149, 150, 136, 172, 58, 132, 93, 234, 127, 162, 21, 54, 103,67, 109]
 
-def getFaces(image):
+def getFaces(image, min_detection_confidence=0.6):
     face_detection = mp.solutions.face_detection
     image_rows, image_cols, img_channel = image.shape
     faces = []
     bboxs = []
-    with face_detection.FaceDetection(min_detection_confidence=0.5) as f_detection:
+    with face_detection.FaceDetection(min_detection_confidence=min_detection_confidence) as f_detection:
         results = f_detection.process(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
         for detection in results.detections:
             bbox_start_point = _normalized_to_pixel_coordinates(detection.location_data.relative_bounding_box.xmin,
@@ -270,18 +270,27 @@ def faceSwap(image_template, image_ref, image_tempalted_landmarks, image_ref_lan
             t2.append(hull_ref[dt[idx][j]])
         
         fbc.warpTriangle(image_tempalted_Warped, image_ref, t1, t2)
+        # cv2.imshow("temp", image_tempalted_Warped)
+        # cv2.waitKey(300)
         
+    # 调整一下颜色
+    # image_tempalted_Warped=fbc.correctColors(image_template, image_tempalted_Warped, np.array(image_tempalted_landmarks)[133], np.array(image_tempalted_landmarks)[336])
+    # cv2.imshow("image_tempalted_Warped", image_tempalted_Warped)
+    # cv2.waitKey(0)
     # 创建一个Mask for Seamless cloning
     hull8u = []
     for i in range(0, len(hull_tempalted)):
         hull8u.append((hull_tempalted[i][0], hull_tempalted[i][1]))
     mask = np.zeros(image_tempalted_Warped.shape, dtype=image_tempalted_Warped.dtype)
     cv2.fillConvexPoly(mask, np.int32(hull8u), (255, 255, 255))
-    # mask = cv2.GaussianBlur(mask,(51,51),10)
+    mask = cv2.GaussianBlur(mask,(3,3),10)
     # 对mask进行膨胀操作，将白色区域变大一点
+    # cv2.imshow("mask", mask)
+    # cv2.waitKey(0)
 
 
     # 获取目标图像中hull的中心点
+    # mask = 255 * np.ones(image_template.shape, image_template.dtype)
     r = cv2.boundingRect(np.float32([hull_tempalted]))
     center = ((r[0]+int(r[2]/2), r[1]+int(r[3]/2)))
 
@@ -301,13 +310,34 @@ if __name__ == "__main__":
                         help='path to input image')
     parser.add_argument('-r', '--ref_path', default='./res/img1.jpeg', type=str, 
                         help='path to reference image(texture ref)')
+    parser.add_argument('-m', '--mask_path', default=None, type=str, 
+                        help='path to reference image(texture ref)')
     args = parser.parse_args()
     image = cv2.imread(args.image_path, cv2.IMREAD_COLOR)
     img_height, img_width, img_channel = image.shape
 
     image_ref = cv2.imread(args.ref_path, cv2.IMREAD_COLOR)
+
     print(image.shape)
     print(image_ref.shape)
+
+    if args.mask_path:
+        image_hair = cv2.imread(args.mask_path, cv2.IMREAD_COLOR)
+        image_hair = cv2.resize(image_hair, (image.shape[1], image.shape[0]))
+        print(image_hair.shape)
+
+        image_hair_gray = cv2.cvtColor(image_hair, cv2.COLOR_BGR2GRAY)
+        _, image_hair_mask = cv2.threshold(image_hair_gray, 127, 255, cv2.THRESH_BINARY_INV)
+
+        image_bk = cv2.bitwise_or(image, image, mask=(image_hair_mask-255))
+        # cv2.imshow("bk", image_bk)
+        image_fk = cv2.bitwise_or(image_hair, image_hair, mask=image_hair_mask)
+        # cv2.imshow("fk", image_fk)
+        image_with_hair = cv2.bitwise_or(image_bk, image_fk)
+        # cv2.imwrite("./res/template21_with_hair.jpg", )
+        # cv2.imshow("image_with_hair", image_with_hair)
+        # cv2.waitKey(0)
+
     # # print(img_height, img_width, img_channel)
 
     # # image_ref_landmarks = getFaceLandmarks(image_ref, max_num_faces=1)[0]
@@ -400,13 +430,20 @@ if __name__ == "__main__":
     # cv2.waitKey(0)
 
     landmark_detector = dlib.shape_predictor("./res/dlib/shape_predictor_68_face_landmarks.dat")
-    faces, faces_bboxs = getFaces(image)
+    # faces, faces_bboxs = getFaces(image)
+    if args.mask_path:
+        image_prossed = image_with_hair.copy()
+    else:
+        image_prossed = image.copy()
+
+    faces, faces_bboxs = getFaces(image_prossed)
     faces_ref, faces_ref_bboxs = getFaces(image_ref)
     
     # bbox = dlib.rectangle(faces_bboxs[0][0], faces_bboxs[0][1], faces_bboxs[0][2], faces_bboxs[0][3])
     # bbox = dlib.rectangle(*faces_bboxs[0])
-    # image_tempalte_landmarks = getFaceLandmarks(image, shape_predictor=landmark_detector, face_bbox=bbox, isDlib=True)[0]
-    image_tempalte_landmarks = getFaceLandmarks(image)[0]
+    # image_tempalte_landmarks = getFaceLandmarks(image_with_hair, shape_predictor=landmark_detector, face_bbox=bbox, isDlib=True)[0]
+    image_tempalte_landmarks = getFaceLandmarks(image_prossed)[0]
+    # image_tempalte_landmarks = getFaceLandmarks(image_prossed)[0]
 
     # bbox = [faces_ref_bboxs[0][0], faces_ref_bboxs[0][1], faces_ref_bboxs[0][2], faces_ref_bboxs[0][3]]
     # bbox = dlib.rectangle(*faces_ref_bboxs[0])
@@ -414,22 +451,30 @@ if __name__ == "__main__":
     image_ref_landmarks = getFaceLandmarks(image_ref)[0]
 
 
-    # annotated_image = image.copy()
-    # for point in image_tempalte_landmarks:
-    #     cv2.circle(annotated_image, point, 2, (0, 255, 0), 2)
-    # bbox = faces_bboxs[0]
-    # cv2.rectangle(annotated_image, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), thickness=2)
-    # cv2.imshow("landmarks", annotated_image)
+    annotated_image = image_prossed.copy()
+    for point in image_tempalte_landmarks:
+        cv2.circle(annotated_image, point, 2, (0, 255, 0), 2)
+    bbox = faces_bboxs[0]
+    cv2.rectangle(annotated_image, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), thickness=2)
+    cv2.imshow("landmarks", annotated_image)
 
-    # annotated_image1 = image_ref.copy()
-    # for point in image_ref_landmarks:
-    #     cv2.circle(annotated_image1, point, 2, (0, 255, 0), 2)
-    # bbox = faces_ref_bboxs[0]
-    # cv2.rectangle(annotated_image1, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), thickness=2)
-    # cv2.imshow("landmarks_ref", annotated_image1)
+    annotated_image1 = image_ref.copy()
+    for point in image_ref_landmarks:
+        cv2.circle(annotated_image1, point, 2, (0, 255, 0), 2)
+    bbox = faces_ref_bboxs[0]
+    cv2.rectangle(annotated_image1, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), thickness=2)
+    cv2.imshow("landmarks_ref", annotated_image1)
     # cv2.waitKey(0)
 
 
     output = faceSwap(image, image_ref, image_tempalte_landmarks, image_ref_landmarks)
+
+    if args.mask_path:
+        output_bk = cv2.bitwise_or(output, output, mask=(image_hair_mask-255))
+        # cv2.imshow("bk", image_bk)
+        output_fk = cv2.bitwise_or(image_hair, image_hair, mask=image_hair_mask)
+        # cv2.imshow("fk", image_fk)
+        output = cv2.bitwise_or(output_bk, output_fk)
+
     cv2.imshow("faceSwap", output)
     cv2.waitKey(0)

@@ -68,7 +68,7 @@ TEMPLATES_ROOT=./res/templates  # 模板文件的根目录
 TEMPLATES_CONFIG_NAME=templates.yaml    # 模板配置信息
 ```
 
-### 1.4 启动docker容易
+### 1.4 启动docker容器
 `./docker-compose.yml`文件是docker的默认配置文件，具体的配置如下:   
 ```yaml
 version: '3.7'

@@ -116,7 +116,7 @@ services:
 ```bash
 sudo yum -y install epel-release
 sudo yum -y install git gcc gcc-c++ cmake3
-sudo yum install -y python34 python34-devel python34-pip
+sudo yum install -y python3 python3-devel python3-pip
 sudo yum install -y python python-devel python-pip
 sudo yum -y install python-devel numpy python34-numpy
 sudo yum -y install gtk2-devel
@@ -192,41 +192,45 @@ $ sudo systemctl status supervisord
 $ sudo systemctl start supervisord
 ```
 
-
-
-
-
-- 配置supervisor
-
+- 开放supervisor的web管理页面
+`sudo vim /etc/supervisord.conf`打开supervisor的配置文件，将`[inet_http_server]`模块的配置修改为如下所示
 
 ```
-[program:cmit_faceswap]
-command=/{项目根目录}/venv/bin/gunicorn -b 0.0.0.0:5000 -w 2 cmit_faceswap:app --timeout=180 --log-level=debug --preload; supervisor启动命令
-directory=/{项目根目录}                                                ; 项目的文件夹路径
-startsecs=0                                                                             ; 启动时间
-stopwaitsecs=0                                                                          ; 终止等待时间
-autostart=true                                                                         ; 是否自动启动
-autorestart=true                                                                       ; 是否自动重启
-stdout_logfile=/{项目根目录}/logs/gunicorn.log                           ; log 日志
-stderr_logfile=/{项目根目录}/logs/gunicorn.err  
+[inet_http_server]         ; inet (TCP) server disabled by default
+port=*:9001        ; (ip_address:port specifier, *:port for all iface)
+username=user              ; (default is no username (open server))
+password=123               ; (default is no password (open server))
 ```
 
-- 启动supervisor
+使用`sudo systemctl restart supervisord`重启supervisor,此时可以通过`http://{ip}:9001`访问supervisor的配置页面
 
-```bash
-$ supervisord -c supervisor.conf 
+#### 1.2.5 配置应用
+- 查看如何为supervisor配置应用    
+`sudo vim /etc/supervisord.conf`,训练文件的最后一行`[include]`添加应用的配置。    
+不同的系统安装的supervisor可能有所差异，本例CentOS7.8环境下的`[include]`的配置如下:     
 ```
+[include]
+files = supervisord.d/*.ini
+```
+意思是：用户可以将应用的配置放置在`/etc/supervisord.d`目录下，应用的配置文件格式为`*.ini`
 
-- supervisor的其命令
-  - 察看supervisor的状态
-    ```bash
-    supervisorctl -c supervisor.conf status                    察看supervisor的状态
-    ```
-  - 重新载入配置文件
-    ```bash
-    supervisorctl -c supervisor.conf reload                    重新载入配置文件
-    ```
+- 创建应用配置    
+在`/etc/supervisord.d`目录下创建一个文件`cmit_faceswap.ini`作为应用的配置，文件内容如下:    
+```
+[program:cmit_faceswap]                                                                     ; 应用名称
+command=${项目根目录}/venv/bin/gunicorn -b 0.0.0.0:5050 -w 2 cmit_faceswap:app --timeout=180  ; supervisor启动命令
+directory=${项目根目录}                                                                       ; 项目的文件夹路径
+startsecs=0                                                                                 ; 启动时间
+stopwaitsecs=0                                                                              ; 终止等待时间
+autostart=true                                                                              ; 是否自动启动
+autorestart=true                                                                            ; 是否自动重启
+stdout_logfile=${项目根目录}/logs/gunicorn.log                                                ; log 日志
+stderr_logfile=${项目根目录}/logs/gunicorn.err
+```
+- 最后重启supervisor
+当一切搞定之后，执行`sudo systemctl restart supervisord`重启supervisor, 在访问supervisor的web管理界面，看到如下界面，表示应用部署成功
 
+![supervisor](./docs/supervisor.png)
 
 ## 2. 接口说明
 ### 2.1 /api/v1/faceswap

@@ -34,6 +34,22 @@
 
 ## 1. 部署说明
 将代码克隆到部署服务器上，按照如下步骤配置自己的部署工程
+
+ps:   
+默认打印的gunicorn日志为debug日志，生产环境下请修改`boot.sh`中的日志级别    
+
+- 生产环境的gunicorn移除`--log-level=debug --preload`   
+
+```bash
+#!/bin/sh
+
+# 日志文件
+touch /cmit_faceswap/log/access.log
+touch /cmit_faceswap/log/error.log
+# touch /cmit_faceswap/log/output.log
+
+exec gunicorn -b 0.0.0.0:5000 -w 2 cmit_faceswap:app --access-logfile=/cmit_faceswap/log/access.log --error-logfile=/cmit_faceswap/log/error.log --timeout=180 --log-level=debug --preload
+```
 ### 1.1 部署要求
 - Docker 18.03+
 ### 1.2 配置面部融合的模板

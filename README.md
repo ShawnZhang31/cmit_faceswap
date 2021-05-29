@@ -119,7 +119,7 @@ sudo yum -y install epel-release
 sudo yum -y install git gcc gcc-c++ cmake3
 sudo yum install -y python3 python3-devel python3-pip
 sudo yum install -y python python-devel python-pip
-sudo yum -y install python-devel numpy python34-numpy
+sudo yum -y install python-devel numpy python3-numpy
 sudo yum -y install gtk2-devel
 sudo yum install -y libpng-devel
 sudo yum install -y jasper-devel

@@ -9,3 +9,4 @@ if os.path.exists(dotenv_path):
 
 
 app = create_app(os.getenv("APP_CONFIG") or "production")
+

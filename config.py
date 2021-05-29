@@ -4,6 +4,12 @@
 
 import os
 
+# 使用gunicorn进行本地部署的时候，在这里加载环境变量似乎更合适
+from dotenv import load_dotenv
+dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(dotenv_path):
+    load_dotenv(dotenv_path)
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config:

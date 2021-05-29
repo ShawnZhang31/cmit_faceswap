@@ -33,10 +33,12 @@
 </div> -->
 
 ## 1. 部署说明
-将代码克隆到部署服务器上，按照如下步骤配置自己的部署工程
+将代码克隆到部署服务器上，按照如下步骤配置自己的部署工程:   
+- Docker部署
+- supervisor+gunicorn部署
+### 1.1 Docker部署
 
-ps:   
-默认打印的gunicorn日志为debug日志，生产环境下请修改`boot.sh`中的日志级别    
+docker部署默认打印的gunicorn日志为debug日志，生产环境下请修改`boot.sh`中的日志级别    
 
 - 生产环境的gunicorn移除`--log-level=debug --preload`   
 
@@ -50,9 +52,9 @@ touch /cmit_faceswap/log/error.log
 
 exec gunicorn -b 0.0.0.0:5000 -w 2 cmit_faceswap:app --access-logfile=/cmit_faceswap/log/access.log --error-logfile=/cmit_faceswap/log/error.log --timeout=180 --log-level=debug --preload
 ```
-### 1.1 部署要求
+#### 1.1.1 部署要求
 - Docker 18.03+
-### 1.2 配置面部融合的模板
+#### 1.1.2 配置面部融合的模板
 将面部融合的模板放到`./res/templates`目录下面，并更新`./res/templates/templates.yaml`文件中的模板配置
 
 如：该项目中配置了演示用模板template1，并在模板将template1的配置信息写入`./res/templates/templates.yaml`文件中      
@@ -67,7 +69,7 @@ template1: # 模板名称，这个名称非常重要，后面调用接口的时�
     face: './res/templates/template1/female/female_no_hair.jpg' # 没有带头发的模板
     hair: './res/templates/template1/female/hair.jpg' # 头发模板，注意头发意外的部分全部应设置为白色
 ```
-### 1.3 配置环境变量
+#### 1.1.3 配置环境变量
 在`./.env`文件中设置环境变量，下面是项目中自带一个.env文件，如果懒得的话，可以只替换一下`SECRET_KEY`        
 
 ```env
@@ -84,7 +86,7 @@ TEMPLATES_ROOT=./res/templates  # 模板文件的根目录
 TEMPLATES_CONFIG_NAME=templates.yaml    # 模板配置信息
 ```
 
-### 1.4 启动docker容器
+#### 1.1.4 启动docker容器
 `./docker-compose.yml`文件是docker的默认配置文件，具体的配置如下:   
 ```yaml
 version: '3.7'
@@ -104,6 +106,127 @@ services:
 一切配置完成之后，在项目根目录执行`docker-compose up -d`即可启动容器；首次启动需要自动安装依赖文件，可能耗时较长      
 访问http://{ip}:5000，看到如下页面，表示容器启动成功:       
 ![index](./docs/index.png)
+
+### 1.2 supervisor+gunicorn部署
+以CentOS 7.8 为例
+
+#### 1.2.1 配置部署环境
+
+- 安装前置依赖
+```bash
+sudo yum -y install epel-release
+sudo yum -y install git gcc gcc-c++ cmake3
+sudo yum install -y python34 python34-devel python34-pip
+sudo yum install -y python python-devel python-pip
+sudo yum -y install python-devel numpy python34-numpy
+sudo yum -y install gtk2-devel
+sudo yum install -y libpng-devel
+sudo yum install -y jasper-devel
+sudo yum install -y openexr-devel
+sudo yum install -y libwebp-devel
+sudo yum -y install libjpeg-turbo-devel
+sudo yum install -y freeglut-devel mesa-libGL mesa-libGL-devel
+sudo yum -y install libtiff-devel
+sudo yum -y install libdc1394-devel
+sudo yum -y install tbb-devel eigen3-devel
+sudo yum -y install boost boost-thread boost-devel
+sudo yum -y install libv4l-devel
+sudo yum -y install gstreamer-plugins-base-devel
+```
+
+- 升级pip3到最新版本
+```bash
+$ sudo python3 -m pip install --upgrade pip
+```
+
+- 安装virtualenv
+```bash
+$ sudo python3 -m pip install virtualenv
+```
+
+#### 1.2.2 创建并激活项目虚拟环境
+- 在项目根目录创建项目虚拟环境    
+```bash
+$ python3 -m virtualenv venv
+```
+
+- 激活项目虚拟环境
+```bash
+$ source venv/bin/activate
+```
+
+接下来的操作根据bash并且前的符号来确定是在虚拟环境中执行，还是在普通环境中执行：    
+- `$`表示在普通环境中执行
+- `(venv) [xxxx]$`表示在虚拟环境中执行
+- `deactivate`: 退出虚拟环境
+- `source venv/bin/activate`: 激活虚拟环境
+
+#### 1.2.3 在虚拟环境中安装项目依赖文件
+
+安装项目依赖的包
+```bash
+(venv)[xxxx]$ pip install -r requirements.txt
+```
+
+**PS：由于CentOS在图像开发上的支持度很差，此时可能会出现dlib setup.py的错误，没有什么好的解决办法，并根据具体的错误Google了**
+
+#### 1.2.4 安装并配置supervisor
+`deactivate`退出虚拟环境    
+- 安装supervsior    
+```bash
+$ sudo yum install supervisor -y
+```
+
+- 设置supervisor为开机启动
+```bash
+$ sudo systemctl enable supervisord
+```
+
+- 查看supervisor的状态
+```bash
+$ sudo systemctl status supervisord
+```
+
+- 启动supervisor
+```bash
+$ sudo systemctl start supervisord
+```
+
+
+
+
+
+- 配置supervisor
+
+
+```
+[program:cmit_faceswap]
+command=/{项目根目录}/venv/bin/gunicorn -b 0.0.0.0:5000 -w 2 cmit_faceswap:app --timeout=180 --log-level=debug --preload; supervisor启动命令
+directory=/{项目根目录}                                                ; 项目的文件夹路径
+startsecs=0                                                                             ; 启动时间
+stopwaitsecs=0                                                                          ; 终止等待时间
+autostart=true                                                                         ; 是否自动启动
+autorestart=true                                                                       ; 是否自动重启
+stdout_logfile=/{项目根目录}/logs/gunicorn.log                           ; log 日志
+stderr_logfile=/{项目根目录}/logs/gunicorn.err  
+```
+
+- 启动supervisor
+
+```bash
+$ supervisord -c supervisor.conf 
+```
+
+- supervisor的其命令
+  - 察看supervisor的状态
+    ```bash
+    supervisorctl -c supervisor.conf status                    察看supervisor的状态
+    ```
+  - 重新载入配置文件
+    ```bash
+    supervisorctl -c supervisor.conf reload                    重新载入配置文件
+    ```
+
 
 ## 2. 接口说明
 ### 2.1 /api/v1/faceswap

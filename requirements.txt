@@ -1,8 +1,13 @@
 flask==1.1.2
 opencv-python==4.5.1.48
 python-dotenv==0.17.1
-numpy==1.19.5
 dlib==19.22.0
-mediapipe==0.8.3.1
+mediapipe==0.8.3
 gunicorn==20.1.0
 pyyaml==5.4.1
+
+sudo yum install epel-release git gcc gcc-c++ \
+    gtk2-devel libpng-devel jasper-devel openexr-devel libwebp-devel \
+    libjpeg-turbo-devel libtiff-devel libdc1394-devel tbb-devel numpy \
+    eigen3-devel gstreamer-plugins-base-devel freeglut-devel mesa-libGL \
+    mesa-libGL-devel boost boost-thread boost-devel libv4l-devel libX11-devel -y

@@ -33,7 +33,7 @@
 </div> -->
 
 ## 1. 部署说明
-将代码克隆到部署服务器上，按照如下步骤配置自己的部署工程:   
+该项目提供了两种部署方式:   
 - Docker部署
 - supervisor+gunicorn部署
 ### 1.1 Docker部署
@@ -54,6 +54,7 @@ exec gunicorn -b 0.0.0.0:5000 -w 2 cmit_faceswap:app --access-logfile=/cmit_face
 ```
 #### 1.1.1 部署要求
 - Docker 18.03+
+- 克隆项目到本地
 #### 1.1.2 配置面部融合的模板
 将面部融合的模板放到`./res/templates`目录下面，并更新`./res/templates/templates.yaml`文件中的模板配置
 

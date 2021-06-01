@@ -7,3 +7,43 @@ template1:
     img: './res/templates/template1/female/female.jpg'
     face: './res/templates/template1/female/female_no_hair.jpg'
     hair: './res/templates/template1/female/hair.jpg'
+
+template2:
+  male:
+    img: './res/templates/template2/male/male.jpg'
+    face: './res/templates/template2/male/male_no_hair.jpg'
+    hair: './res/templates/template2/male/hair.jpg'
+  female:
+    img: './res/templates/template2/female/female.jpg'
+    face: './res/templates/template2/female/female_no_hair.jpg'
+    hair: './res/templates/template2/female/hair.jpg'
+
+template3:
+  male:
+    img: './res/templates/template3/male/male.jpg'
+    face: './res/templates/template3/male/male_no_hair.jpg'
+    hair: './res/templates/template3/male/hair.jpg'
+  female:
+    img: './res/templates/template3/female/female.jpg'
+    face: './res/templates/template3/female/female_no_hair.jpg'
+    hair: './res/templates/template3/female/hair.jpg'
+
+template4:
+  male:
+    img: './res/templates/template4/male/male.jpg'
+    face: './res/templates/template4/male/male_no_hair.jpg'
+    hair: './res/templates/template4/male/hair.jpg'
+  female:
+    img: './res/templates/template4/female/female.jpg'
+    face: './res/templates/template4/female/female_no_hair.jpg'
+    hair: './res/templates/template4/female/hair.jpg'
+
+template5:
+  male:
+    img: './res/templates/template5/male/male.jpg'
+    face: './res/templates/template5/male/male_no_hair.jpg'
+    hair: './res/templates/template5/male/hair.jpg'
+  female:
+    img: './res/templates/template5/female/female.jpg'
+    face: './res/templates/template5/female/female_no_hair.jpg'
+    hair: './res/templates/template5/female/hair.jpg'

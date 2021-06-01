@@ -7,7 +7,10 @@ def imageFromBase64Code(img_base64):
     将base64编码的图像还原为OpenCV的图像
     """
     #提取数据中有效字段
-    data = img_base64.split(',')[1]
+    if ',' in img_base64:
+        data = img_base64.split(',')[1]
+    else:
+        data = img_base64
 
     #获取解码后的base64字符
     data = base64.decodebytes(data.encode())

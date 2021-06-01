@@ -33,7 +33,7 @@ def image_required_withkey(imageKey='image_ref'):
                 else:
                     # 检查图像的通道情况
                     img_height, img_width, img_channel = image.shape
-                    print(image.shape)
+                    # print(image.shape)
                     if img_channel == 3:
                         pass
                     elif img_channel == 4:

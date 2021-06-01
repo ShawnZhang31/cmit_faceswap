@@ -120,7 +120,7 @@ def correctColors(im1, im2, point1, point2):
     颜色校正
     """
     
-    blurAmount = 0.5 * np.linalg.norm(point1 - point2)
+    blurAmount = 0.3 * np.linalg.norm(point1 - point2)
     blurAmount = int(blurAmount)
 
     if blurAmount % 2 == 0:

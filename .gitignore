@@ -125,8 +125,13 @@ dmypy.json
 .vscode
 
 
-res/templates/test/*
+res/templates/*
+!res/templates/template1/*
+!res/templates/templates.yaml
+
+docs/test_imgs/*
 
 logs/*
 !logs/.gitkeep
+
 

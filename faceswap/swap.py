@@ -8,6 +8,7 @@ from faceswap.facelib import DlibToolClass, GenderToolClass
 
 from faceswap.faceswap_utils.ImageException import ImageError
 from faceswap.faceswap_utils.ModelLoadException import ModelLoadError
+from faceswap.facelib.mediaface import faceSwap, faceSwap_CC
 
 class FaceSwap:
     
@@ -93,7 +94,7 @@ class FaceSwap:
         points1=self.dlibTool.get_landmarks(img1)
         points2=self.dlibTool.get_landmarks(img2)
         if(points1 is None or points2 is None):
-            raise ImageError("no face detected")
+            raise ImageError(message='未检测到人脸')
         img1_size=self.get_image_size(img1)
         img1_mask = self.get_face_mask(img1_size, np.array(points1,dtype=np.int))  # 脸图人脸掩模
         # cv2.imshow("img1_mask", img1_mask)
@@ -110,6 +111,51 @@ class FaceSwap:
         # cv2.waitKey(0)
         point = self.get_mask_center_point(affine_img1_mask)  # im1（脸图）仿射变换后的图片的人脸掩模的中心点
         seamless_im = cv2.seamlessClone(affine_img1, img2, mask=union_mask, p=point, flags=cv2.NORMAL_CLONE)  # 进行泊松融合
+        return seamless_im
+
+
+    def swap_face_v2(self,img1,img2):
+        self.imgvalidate(img1)
+        self.imgvalidate(img2)
+        
+        points1=self.dlibTool.get_landmarks(img1)
+        points2=self.dlibTool.get_landmarks(img2)
+        if(points1 is None or points2 is None):
+            raise ImageError(message='未检测到人脸')
+        # img1_size=self.get_image_size(img1)
+        # img1_mask = self.get_face_mask(img1_size, np.array(points1,dtype=np.int))  # 脸图人脸掩模
+        # # cv2.imshow("img1_mask", img1_mask)
+        # # cv2.waitKey(0)
+        # img2_size = self.get_image_size(img2)  # 摄像头图片大小
+        # img2_mask = self.get_face_mask(img2_size, np.array(points2,dtype=np.int))  # 摄像头图片人脸掩模
+        # # cv2.imshow("img2_mask", img2_mask)
+        # # cv2.waitKey(0)
+        # affine_img1 = self.get_affine_image(img1, img2, points1, points2)  # im1（脸图）仿射变换后的图片
+        # affine_img1_mask = self.get_affine_image(img1_mask, img2, points1, points2)  # im1（脸图）仿射变换后的图片的人脸掩模
+
+        # union_mask = self.get_mask_union(img2_mask, affine_img1_mask)  # 掩模合并
+        # # cv2.imshow("union_mask", union_mask)
+        # # cv2.waitKey(0)
+        # point = self.get_mask_center_point(affine_img1_mask)  # im1（脸图）仿射变换后的图片的人脸掩模的中心点
+        # seamless_im = cv2.seamlessClone(affine_img1, img2, mask=union_mask, p=point, flags=cv2.NORMAL_CLONE)  # 进行泊松融合
+        points1_list = []
+        for point in points1:
+            points1_list.append((int(point[0]), int(point[1])))
+        points2_list = []
+        for point in points2:
+            points2_list.append((int(point[0]), int(point[1])))
+
+        img2_clone = img2.copy()
+        for point in points2_list:
+            cv2.circle(img2_clone, point, 3, (0, 255, 0), 1)
+        
+        cv2.imwrite("tem_landmark.jpg", img2_clone)
+
+        
+
+
+        seamless_im = faceSwap_CC(img2, img1, points2_list, points1_list)
+
         return seamless_im
 
 if __name__ == "__main__":

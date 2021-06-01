@@ -66,9 +66,14 @@ def faceswap_v1(*args, **kwargs):
     # merge = swapface.swap_face(image_ref, template_face)
 
     # merge = dlibFaceSwap(template_img, image_ref)
-    merge = dlibFaceSwap(template_face, image_ref, with_hair=False, template_hair=template_hair)
+    merge, message = dlibFaceSwap(template_face, image_ref, with_hair=False, template_hair=template_hair)
     
-    cv2.imwrite("./merge.jpg", merge)
+    # cv2.imwrite("./merge.jpg", merge)
+    if merge is None:
+        resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
+        resp['error'] = message
+        resp['swaped_image']=None
+        return json.dumps(resp)
 
     base64_string = base64EncodeImage(merge)
 
@@ -80,9 +85,16 @@ def faceswap_v1(*args, **kwargs):
 def dlibFaceSwap(template, image_ref, with_hair=True, template_hair=None):
     swapface = FaceSwap(dlib_landmark_predictor)
     if with_hair:
-        merge = swapface.swap_face(image_ref, template)
-        return merge
+        try:
+            merge = swapface.swap_face(image_ref, template)
+        except ImageError as e:
+            return None, e.message
+        return merge, None
     else:
+        try:
+            merge = swapface.swap_face(image_ref, template)
+        except ImageError as e:
+            return None, e.message
         merge = swapface.swap_face(image_ref, template)
         hair_mask = cv2.threshold(cv2.cvtColor(template_hair, cv2.COLOR_BGR2GRAY), 120, 255, cv2.THRESH_BINARY_INV)
         merge = merge.astype(np.float32)/255.0
@@ -91,7 +103,7 @@ def dlibFaceSwap(template, image_ref, with_hair=True, template_hair=None):
         template_hair = template_hair.astype(np.float32)/255.0
         merge = merge*(1.0 - hair_mask) + template_hair * hair_mask
         merge = (merge*255.0).astype(np.uint8)
-        return merge
+        return merge, None
 
 
 @main.route("/api/v2/faceswap", methods=['POST'])
@@ -188,3 +200,46 @@ def getTemplateImages(tempalte, gender):
     tempalte_hair = cv2.imread(tempalte_hair_path, cv2.IMREAD_COLOR)
 
     return tempalte_img, tempalte_face, tempalte_hair
+
+# @main.route("/api/v3/faceswap", methods=['POST'])
+# @request_required_params(['image_ref', 'template_name'])
+# @image_required_withkey('image_ref')
+# @tempate_required_withkey('template_name')
+# def faceswap_v1(*args, **kwargs):
+#     image_ref = kwargs['image_ref']
+#     template = kwargs['template']
+    
+#     resp={}
+#     resp['code'] = API_RESPONE_CODE.API_RESPONE_SUCCESS
+#     resp['error'] = None
+#     resp['swaped_image'] = None
+
+#     # 检查image_ref中是否有人脸
+#     faces, bboxes = getFaces(image_ref)
+#     if len(faces) == 0:
+#         resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
+#         resp['error'] = "上传的图像中未检测到人脸"
+#         resp['swaped_image']=None
+#         return json.dumps(resp)
+
+#     # 检查上传的图像的性别
+#     image_ref_gender = gender_classifer.getGender(image_ref, box=bboxes[0])
+    
+#     # 获取模板图像
+#     template_img, template_face, template_hair = getTemplateImages(template, image_ref_gender)
+
+#     # 使用dlib合成方案
+#     # swapface = FaceSwap(dlib_landmark_predictor)
+#     # merge = swapface.swap_face(image_ref, template_face)
+
+#     # merge = dlibFaceSwap(template_img, image_ref)
+#     merge = dlibFaceSwap(template_face, image_ref, with_hair=False, template_hair=template_hair)
+    
+#     cv2.imwrite("./merge.jpg", merge)
+
+#     base64_string = base64EncodeImage(merge)
+
+#     resp['code'] = API_RESPONE_CODE.API_RESPONE_SUCCESS
+#     resp['error'] = None
+#     resp['swaped_image']=base64_string
+#     return json.dumps(resp)

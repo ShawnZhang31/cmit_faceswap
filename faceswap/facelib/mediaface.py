@@ -9,9 +9,11 @@ import cv2
 import mediapipe as mp
 import numpy as np
 import dlib
+from numpy.core.defchararray import center
 
 import faceswap.facelib.faceBlendCommon as fbc
 from faceswap.faceswap_utils import ImageException
+# import faceswap.facelib.correctColor as cc
 
 mp_face_detection = mp.solutions.face_detection
 
@@ -274,7 +276,10 @@ def faceSwap(image_template, image_ref, image_tempalted_landmarks, image_ref_lan
         # cv2.waitKey(300)
         
     # 调整一下颜色
-    # image_tempalted_Warped=fbc.correctColors(image_template, image_tempalted_Warped, np.array(image_tempalted_landmarks)[133], np.array(image_tempalted_landmarks)[336])
+    # cv2.imwrite("image_tempalted_Warped_1.jpg", image_tempalted_Warped)
+
+    # image_tempalted_Warped=fbc.correctColors(image_template, image_tempalted_Warped, np.array(image_tempalted_landmarks)[38], np.array(image_tempalted_landmarks)[43])
+    # cv2.imwrite("image_tempalted_Warped_2.jpg", image_tempalted_Warped)
     # cv2.imshow("image_tempalted_Warped", image_tempalted_Warped)
     # cv2.waitKey(0)
     # 创建一个Mask for Seamless cloning
@@ -283,7 +288,7 @@ def faceSwap(image_template, image_ref, image_tempalted_landmarks, image_ref_lan
         hull8u.append((hull_tempalted[i][0], hull_tempalted[i][1]))
     mask = np.zeros(image_tempalted_Warped.shape, dtype=image_tempalted_Warped.dtype)
     cv2.fillConvexPoly(mask, np.int32(hull8u), (255, 255, 255))
-    mask = cv2.GaussianBlur(mask,(3,3),10)
+    # mask = cv2.GaussianBlur(mask,(3,3),10)
     # 对mask进行膨胀操作，将白色区域变大一点
     # cv2.imshow("mask", mask)
     # cv2.waitKey(0)
@@ -300,7 +305,85 @@ def faceSwap(image_template, image_ref, image_tempalted_landmarks, image_ref_lan
 
     # cv2.waitKey(0)
     return output
+
+def faceSwap_CC(image_template, image_ref, image_tempalted_landmarks, image_ref_landmarks,face_contour=None):
+    image_tempalted_Warped = np.copy(image_template)
+
+    # 计算hull
+    hull_tempalted = []
+    hull_ref = []
     
+    # 如果没有指定合成区域的轮廓的话，则自动计算合成区域
+    if not face_contour:
+        hullIndex = cv2.convexHull(np.array(image_ref_landmarks), returnPoints=False)
+        for idx in range(0, len(hullIndex)):
+            hull_tempalted.append(image_tempalted_landmarks[hullIndex[idx][0]])
+            hull_ref.append(image_ref_landmarks[hullIndex[idx][0]])
+    else: # 使用指点的区域作为合成轮廓
+        for idx in face_contour:
+            hull_tempalted.append(image_tempalted_landmarks[face_contour[idx]])
+            hull_ref.append(image_ref_landmarks[face_contour[idx]])
+    
+    
+    
+
+    sizeImage_ref = image_ref.shape
+    rect = (0, 0, sizeImage_ref[1], sizeImage_ref[0])
+
+    # delaunary三角形索引
+    dt = fbc.calculateDelaunayTriangles(rect, hull_ref)
+
+    if len(dt) == 0:
+        raise ImageException(message="图片进行delaunary细分时出现错误!")
+        return None
+    
+    # 对Delaunay三角形进行仿射变换
+    # image_tempalted_Warped = image_tempalted_Warped.astype(np.float32)/255.0
+    # image_ref = image_ref.astype(np.float32)/255.0
+    for idx in range(0, len(dt)):
+        t1 = []
+        t2 = []
+
+        #获取模板图像和参考图像上对应的三角形
+        for j in range(0, 3):
+            t1.append(hull_tempalted[dt[idx][j]])
+            t2.append(hull_ref[dt[idx][j]])
+        
+        fbc.warpTriangle(image_tempalted_Warped, image_ref, t1, t2)
+        # cv2.imshow("temp", image_tempalted_Warped)
+        # cv2.waitKey(300)
+        
+    # 调整一下颜色
+    output=fbc.correctColors(image_template, image_tempalted_Warped, np.array(image_tempalted_landmarks)[38], np.array(image_tempalted_landmarks)[43])
+    
+    # 创建面部的mask
+    re = cv2.boundingRect(np.array(hull_tempalted, np.float32))
+    centerx = (re[0]+(re[0]+re[2]))/2
+    centery = (re[1]+(re[1]+re[3]))/2
+
+    hull3 = []
+    for i in range(0,len(hull_tempalted)):
+        hull3.append((0.95*(hull_tempalted[i][0] - centerx) + centerx, 0.95*(hull_tempalted[i][1] - centery) + centery))
+    
+    mask1 = np.zeros((image_template.shape[0], image_template.shape[1],3), dtype=np.float32)
+    hull3Arr = np.array(hull3,np.int32)
+
+    cv2.fillConvexPoly(mask1,hull3Arr,(255.0,255.0,255.0),16,0)
+
+    mask1 = cv2.GaussianBlur(mask1,(21,21),10)
+
+    mask2 = (255,255,255) - mask1
+
+    temp1 = np.multiply(output,(mask1*(1.0/255)))
+    cv2.imwrite("temp1.jpg", temp1)
+    temp2 = np.multiply(image_template,(mask2*(1.0/255)))
+    cv2.imwrite("temp2.jpg", temp2)
+
+    result = temp1 + temp2
+
+    result = np.uint8(result)
+
+    return result
 
 
 
@@ -465,7 +548,6 @@ if __name__ == "__main__":
     cv2.rectangle(annotated_image1, (bbox[0], bbox[1]), (bbox[2], bbox[3]), (0, 255, 0), thickness=2)
     cv2.imshow("landmarks_ref", annotated_image1)
     # cv2.waitKey(0)
-
 
     output = faceSwap(image, image_ref, image_tempalte_landmarks, image_ref_landmarks)
 

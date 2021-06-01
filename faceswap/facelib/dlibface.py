@@ -36,7 +36,7 @@ class DlibToolClass():
                 for i in range(68):
                     landmarksPoints[i]=[(int)(shape.part(i).x), (int)(shape.part(i).y)]
             return landmarksPoints
-        raise None
+        raise ImageError(message='未检测到人脸')
 
 
     # 检测人脸
@@ -49,7 +49,7 @@ class DlibToolClass():
         for i, d in enumerate(faces):
             x1, y1, x2, y2 = d.left(), d.top(), d.right() , d.bottom()
             result.append({'rectangle': {'x1': x1, 'y1': y1, 'x2': x2,'y2':y2}})
-        return  result
+        return result
 
         # 检测人脸关键点
     def detect_landmark(self,img):

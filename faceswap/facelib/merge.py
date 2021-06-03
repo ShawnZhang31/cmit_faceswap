@@ -19,8 +19,8 @@ JAW_POINTS = list(range(0, 17))
 
 # Points used to line up the images.
 # ALIGN_POINTS = (LEFT_BROW_POINTS + RIGHT_EYE_POINTS + LEFT_EYE_POINTS + RIGHT_BROW_POINTS + NOSE_POINTS + MOUTH_POINTS)
-# ALIGN_POINTS = ( RIGHT_EYE_POINTS + LEFT_EYE_POINTS  + NOSE_POINTS + MOUTH_POINTS)
-ALIGN_POINTS = ( list(range(0, 27)))
+ALIGN_POINTS = ( RIGHT_EYE_POINTS + LEFT_EYE_POINTS  + NOSE_POINTS + MOUTH_POINTS)
+# ALIGN_POINTS = ( list(range(0, 27)))
 
 # Points from the second image to overlay on the first. The convex hull of each
 # element will be overlaid.
@@ -28,11 +28,9 @@ ALIGN_POINTS = ( list(range(0, 27)))
 #     LEFT_EYE_POINTS + RIGHT_EYE_POINTS + LEFT_BROW_POINTS + RIGHT_BROW_POINTS, NOSE_POINTS + MOUTH_POINTS,
 # ]
 
-# OVERLAY_POINTS = [
-#     LEFT_EYE_POINTS + RIGHT_EYE_POINTS, NOSE_POINTS + MOUTH_POINTS,
-# ]
+OVERLAY_POINTS = [ LEFT_EYE_POINTS + RIGHT_EYE_POINTS, NOSE_POINTS + MOUTH_POINTS,]
 
-OVERLAY_POINTS = [list(range(0, 27))]
+# OVERLAY_POINTS = [list(range(0, 27))]
 
 # Amount of blur to use during colour correction, as a fraction of the
 # pupillary distance.
@@ -49,9 +47,12 @@ class NoFaces(Exception):
 
 def get_landmarks(im):
     rects = detector(im, 1)
-    
+
     if len(rects) > 1:
-        raise TooManyFaces
+        # raise TooManyFaces
+        faces=[]
+        faces.append(rects[0])
+        rects=faces
     if len(rects) == 0:
         raise NoFaces
 
@@ -142,7 +143,7 @@ def warp_im(im, M, dshape):
     return output_im
 
 def correct_colours(im1, im2, landmarks1):
-    blur_amount = COLOUR_CORRECT_BLUR_FRAC * numpy.linalg.norm(
+    blur_amount = COLOUR_CORRECT_BLUR_FRAC* 1.0 * numpy.linalg.norm(
                               numpy.mean(landmarks1[LEFT_EYE_POINTS], axis=0) -
                               numpy.mean(landmarks1[RIGHT_EYE_POINTS], axis=0))
     blur_amount = int(blur_amount)
@@ -157,8 +158,8 @@ def correct_colours(im1, im2, landmarks1):
     return (im2.astype(numpy.float64) * im1_blur.astype(numpy.float64) /
                                                 im2_blur.astype(numpy.float64))
 
-im1, landmarks1 = read_im_and_landmarks('./res/templates/template1/female/female.jpg')
-im2, landmarks2 = read_im_and_landmarks('./docs/zxm.jpeg')
+im1, landmarks1 = read_im_and_landmarks('./res/templates/template3/male/male.jpg')
+im2, landmarks2 = read_im_and_landmarks('./docs/test_imgs/hezs.jpeg')
 
 M = transformation_from_points(landmarks1[ALIGN_POINTS],
                                landmarks2[ALIGN_POINTS])
@@ -177,5 +178,7 @@ cv2.imwrite('warped_corrected_im2.jpg', warped_corrected_im2)
 
 
 output_im = im1 * (1.0 - combined_mask) + warped_corrected_im2 * combined_mask
+
+cv2.imwrite('combined_mask.jpg', numpy.uint8(combined_mask*255))
 
 cv2.imwrite('output.jpg', output_im)

@@ -8,5 +8,6 @@ services:
             - .env
         restart: always
         volumes: 
-            - ./logs/:/cmit_faceswap/log
-            - ./res/:/cmit_faceswap/res
+            - ./:/cmit_faceswap
+            # - ./logs/:/cmit_faceswap/log
+            # - ./res/:/cmit_faceswap/res

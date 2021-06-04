@@ -17,7 +17,7 @@ COPY webapp webapp
 COPY cmit_faceswap.py config.py requirements.txt boot.sh .env ./
 
 # 建立日志目录
-RUN mkdir -p /cmit_faceswap/log/
+RUN mkdir -p /cmit_faceswap/logs/
 
 # 时区设置
 RUN /bin/cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \

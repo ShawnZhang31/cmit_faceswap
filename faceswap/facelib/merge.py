@@ -98,9 +98,9 @@ def transformation_from_points(points1, points2):
     # standard deviation, and then using the SVD to calculate the rotation. See
     # the following for more details:
     #   https://en.wikipedia.org/wiki/Orthogonal_Procrustes_problem
-
     points1 = points1.astype(numpy.float64)
     points2 = points2.astype(numpy.float64)
+    # numpy.savetxt('./points1_.txt', points1)
 
     c1 = numpy.mean(points1, axis=0)
     c2 = numpy.mean(points2, axis=0)
@@ -111,7 +111,7 @@ def transformation_from_points(points1, points2):
     s2 = numpy.std(points2)
     points1 /= s1
     points2 /= s2
-
+    print(type(points1.T))
     U, S, Vt = numpy.linalg.svd(points1.T * points2)
 
     # The R we seek is in fact the transpose of the one given by U * Vt. This
@@ -158,8 +158,8 @@ def correct_colours(im1, im2, landmarks1):
     return (im2.astype(numpy.float64) * im1_blur.astype(numpy.float64) /
                                                 im2_blur.astype(numpy.float64))
 
-im1, landmarks1 = read_im_and_landmarks('./res/templates/template3/male/male.jpg')
-im2, landmarks2 = read_im_and_landmarks('./docs/test_imgs/hezs.jpeg')
+im1, landmarks1 = read_im_and_landmarks('./res/templates/template1/male/male.jpg')
+im2, landmarks2 = read_im_and_landmarks('./docs/test_imgs/yhjwhv2.jpeg')
 
 M = transformation_from_points(landmarks1[ALIGN_POINTS],
                                landmarks2[ALIGN_POINTS])

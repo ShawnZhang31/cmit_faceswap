@@ -2,6 +2,7 @@ import os
 from flask import Flask
 from config import config
 from faceswap.facelib import GenderToolClass
+from faceswap.facelib.facedetect import FaceDetect
 import dlib
 
 GENDER_PROTOTXT_FILE_PATH=os.getenv("GENDER_PROTOTXT_FILE_PATH") or None
@@ -12,6 +13,9 @@ DLIB_FACE_LANDMARK_SHAPE_FILE_PATH=os.getenv("DLIB_FACE_LANDMARK_SHAPE_FILE_PATH
 
 gender_classifer = GenderToolClass(proto_file_path=GENDER_PROTOTXT_FILE_PATH, model_file_path=GENDER_NET_FILE_PATH)
 dlib_landmark_predictor = dlib.shape_predictor(DLIB_FACE_LANDMARK_SHAPE_FILE_PATH)
+
+# 人脸检测工具类
+FaceDetectTool = FaceDetect(dlib_landmark_predictor)
 
 def create_app(config_name):
     app = Flask(__name__)

@@ -13,7 +13,7 @@ with mp_face_mesh.FaceMesh(
     max_num_faces=1,
     min_detection_confidence=0.1) as face_mesh:
     
-    image = cv2.imread("./res/iphone82.jpg")
+    image = cv2.imread("./docs/test_imgs/zxm5.jpeg")
     cv2.imshow("image", image)
     print(image.shape)
     cv2.waitKey(0)

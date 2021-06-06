@@ -8,7 +8,7 @@ import dlib
 
 
 class FaceMergeSwap(object):
-    def __init__(self):
+    def __init__(self, FEATHER_AMOUNT=31):
         super().__init__()
         self.FACE_POINTS = list(range(17, 68))
         self.MOUTH_POINTS = list(range(48, 61))
@@ -19,7 +19,7 @@ class FaceMergeSwap(object):
         self.NOSE_POINTS = list(range(27, 35))
         self.JAW_POINTS = list(range(0, 17))
         self.FACE_COUNTOUR=[[0, 1, 2, 3, 4, 5, 6, 8, 9, 10, 11, 12, 13, 14, 15, 16, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17]]
-        self.FEATHER_AMOUNT = 39  # 39 will be better
+        self.FEATHER_AMOUNT = FEATHER_AMOUNT# 39 will be better
 
         # 用来截取图片.
         # self.ALIGN_POINTS = (self.LEFT_BROW_POINTS + self.RIGHT_EYE_POINTS + self.LEFT_EYE_POINTS + self.RIGHT_BROW_POINTS + self.NOSE_POINTS + self.MOUTH_POINTS)
@@ -86,7 +86,7 @@ class FaceMergeSwap(object):
         for h_idx , hull_ref in enumerate(hull_refs):
             # 三角细分
             dt = fbc.calculateDelaunayTriangles(rect, hull_ref)
-            print(dt)
+            # print(dt)
 
             # 对细分三角形进行变换
             for idx in range(0, len(dt)):
@@ -140,7 +140,7 @@ class FaceMergeSwap(object):
         points1 /= s1
         points2 /= s2
         
-        print(type(points1.T))
+        # print(type(points1.T))
         U, S, Vt = np.linalg.svd(points1.T * points2)
         
 
@@ -213,9 +213,9 @@ class FaceMergeSwap(object):
                                                                                         image_ref_landmarks)
 
         mask_center = self.get_mask_center_point(cv2.cvtColor(overlayed_mask, cv2.COLOR_BGR2GRAY))
-        cv2.circle(overlayed_mask, mask_center, 2, (0, 0, 255), thickness=2)
-        cv2.imshow("overlayed_mask", overlayed_mask)
-        cv2.imshow("image_tempalted_Warped", image_tempalted_Warped)
+        # cv2.circle(overlayed_mask, mask_center, 2, (0, 0, 255), thickness=2)
+        # cv2.imshow("overlayed_mask", overlayed_mask)
+        # cv2.imshow("image_tempalted_Warped", image_tempalted_Warped)
 
         # 计算融合区域的重心，使用单通道图像计算
         
@@ -236,9 +236,9 @@ class FaceMergeSwap(object):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='cmit face swap')
-    parser.add_argument('-i', '--image_path', default='./docs/test_imgs/zxm.jpeg', type=str,
+    parser.add_argument('-i', '--image_path', default='./docs/test_imgs/uuxm.jpeg', type=str,
                         help='path to input image')
-    parser.add_argument('-t', '--template_path', default='./res/templates/template1/male/male.jpg', type=str,
+    parser.add_argument('-t', '--template_path', default='./res/templates/template2/female/female.jpg', type=str,
                         help="path to template image")
     args = parser.parse_args()
 
@@ -284,7 +284,6 @@ if __name__ == "__main__":
     image_swaped = faceMergeSwap.swap(image_template, image_ref, landmarks_template, landmarks_ref)
     
     cv2.imshow("image_swaped", image_swaped)
-
     cv2.waitKey()
     
 

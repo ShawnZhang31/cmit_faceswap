@@ -13,7 +13,10 @@ def imageFromBase64Code(img_base64):
         data = img_base64
 
     #获取解码后的base64字符
-    data = base64.decodebytes(data.encode())
+    try:
+        data = base64.decodebytes(data.encode())
+    except Exception:
+        return None
 
     # 转换为numpy array
     nparr = np.frombuffer(data, np.uint8)

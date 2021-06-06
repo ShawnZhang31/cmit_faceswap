@@ -291,11 +291,16 @@ def faceswap_v1(*args, **kwargs):
                         box_dict['width'], 
                         box_dict['height']]
     landmarks_ref = FaceDetectTool.detectFaceLandmarks(image_ref, facebox=face_bboxes_ref)
+    
+    # 处于debug模式下可以打印合成中间图
+    app_debug = os.getenv('DEBUG') or False
+
     # 测试用户提交的图片的识别情况
-    image_ref_copied = image_ref.copy()
-    FaceDetectTool._drawFaceBox(image_ref_copied, face_bboxes_ref)
-    FaceDetectTool._drawFaceLandmark(image_ref_copied, landmarks_ref)
-    cv2.imwrite("image_ref_detected.jpg", image_ref_copied)
+    if app_debug:
+        image_ref_copied = image_ref.copy()
+        FaceDetectTool._drawFaceBox(image_ref_copied, face_bboxes_ref)
+        FaceDetectTool._drawFaceLandmark(image_ref_copied, landmarks_ref)
+        cv2.imwrite("image_ref_detected.jpg", image_ref_copied)
     
     # 模板的检测
     # 对模板图像进行检测
@@ -303,10 +308,11 @@ def faceswap_v1(*args, **kwargs):
     landmarks_template = FaceDetectTool.detectFaceLandmarks(template_face, facebox=face_bboxes_template[0])
 
     # 测试模板图像的识别情况
-    image_template_copied = template_img.copy()
-    FaceDetectTool._drawFaceBox(image_template_copied, face_bboxes_template[0])
-    FaceDetectTool._drawFaceLandmark(image_template_copied, landmarks_template)
-    cv2.imwrite("image_template_detected.jpg", image_template_copied)
+    if app_debug:
+        image_template_copied = template_img.copy()
+        FaceDetectTool._drawFaceBox(image_template_copied, face_bboxes_template[0])
+        FaceDetectTool._drawFaceLandmark(image_template_copied, landmarks_template)
+        cv2.imwrite("image_template_detected.jpg", image_template_copied)
 
     # 开始进行合成
     # 创建合成算法类
@@ -321,7 +327,8 @@ def faceswap_v1(*args, **kwargs):
     merge = template_img * template_hair_mask + image_swaped * (1.0 - template_hair_mask)
     merge = merge.astype(np.uint8)
     
-    cv2.imwrite("./merge.jpg", merge)
+    if app_debug:
+        cv2.imwrite("./merge.jpg", merge)
 
     base64_string = base64EncodeImage(merge, file_ext=swaped_image_ext)
 

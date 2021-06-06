@@ -24,8 +24,8 @@
     - [Docker部署](#21-Docker部署)
     - [supervisor+gunicorn部署](#22-supervisor+gunicorn部署)
 - [接口说明](#3-接口说明)
-    - [/api/v1/faceswap](#31-/api/v1/faceswap)
-    - [/api/v1/face_detect](#32-/api/v1/face_detect)
+    - [/api/v1/faceswap](#31-apiv1faceswap)
+    - [/api/v1/face_detect](#32-apiv1face_detect)
 - [更新说明](#4-更新说明)
 - [TODO](#5-TODO)
 

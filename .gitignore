@@ -134,4 +134,7 @@ docs/test_imgs/*
 logs/*
 !logs/.gitkeep
 
+image_ref_detected.image_template_detected.jpg
+merge.jpg
+
 

@@ -1,0 +1,7 @@
+__pycache__/
+.vscode/
+venv/
+image_ref_detected.jpg
+image_template_detected.jpg
+merge.jpg
+docs/

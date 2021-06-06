@@ -32,5 +32,4 @@ RUN pip install -r requirements.txt
 RUN ["chmod", "+x", "./boot.sh"]
 # 运行配置
 EXPOSE 5000
-ENTRYPOINT [ "./boot.sh" ]
-# CMD [ "./boot.sh" ]
+ENTRYPOINT ["sh", "./boot.sh" ]

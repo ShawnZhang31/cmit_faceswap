@@ -1,3 +1,4 @@
+from math import degrees
 import cv2
 import numpy as np
 import argparse
@@ -200,7 +201,6 @@ class FaceMergeSwap(object):
 
     def swap(self, image_template, image_ref, image_tempalted_landmarks, image_ref_landmarks, method="delanu"):
         """根据指定的轮廓进行面部融合"""
-
         if method == "delanu":
             image_tempalted_Warped, overlayed_mask = self.getDelanuWrapedImageAndMask(image_template, 
                                                                                         image_ref, 
@@ -232,13 +232,59 @@ class FaceMergeSwap(object):
         # cv2.waitKey()
         return image_swaped
 
+    def imageLUT(self, image):
+        originalValue = np.array([0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 255])
+        adjustCurve = np.array([0, 25, 50, 75, 100, 120, 140, 150, 170, 190, 210, 255])
+        # adjustCurve = np.array([0, 50, 100, 150, 175, 210])
+        # adjustCurve = np.array([0, 50, 100, 140, 150, 230])
+        # adjustCurve = np.array([0, 20,  40,  75, 150, 175])
+        
+
+        # Create a LookUp Table
+        fullRange = np.arange(0,256)
+        adjustLUT = np.interp(fullRange, originalValue, adjustCurve)
+        
+        imLUTed = image.copy()
+        imLUTed = cv2.cvtColor(imLUTed, cv2.COLOR_BGR2Lab)
+
+        # l_channle = imLUTed[:,:,0].copy()
+
+        imLUTed[:,:,0] = cv2.LUT(imLUTed[:,:,0], adjustLUT)
+
+        # l_channle_lut = imLUTed[:,:,0].copy()
+
+        # cv2.imshow("L", np.hstack([l_channle, l_channle_lut]))
+
+        # imLUTed[:,:,1] = cv2.LUT(imLUTed[:,:,1], adjustLUT)
+        # imLUTed[:,:,2] = cv2.LUT(imLUTed[:,:,2], adjustLUT)
+        imLUTed = cv2.cvtColor(imLUTed, cv2.COLOR_Lab2BGR)
+        
+        return imLUTed
+
+
+    def imageCLAHE(self, image):
+        """对图像上的高光进行均衡化处理"""
+        imhsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        imhsvCLAHE = imhsv.copy()
+
+        # 只在V通道上进行均衡化处理
+        imhsv[:,:,2] = cv2.equalizeHist(imhsv[:,:,2])
+
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+        imhsvCLAHE[:,:,2] = clahe.apply(imhsvCLAHE[:,:,2])
+
+        imEq = cv2.cvtColor(imhsv, cv2.COLOR_HSV2BGR)
+        imEqCLAHE = cv2.cvtColor(imhsvCLAHE, cv2.COLOR_HSV2BGR)
+
+        return imEq, imEqCLAHE
+
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='cmit face swap')
     parser.add_argument('-i', '--image_path', default='./docs/test_imgs/uuxm.jpeg', type=str,
                         help='path to input image')
-    parser.add_argument('-t', '--template_path', default='./res/templates/template2/female/female.jpg', type=str,
+    parser.add_argument('-t', '--template_path', default='./res/templates/template1/female/female.jpg', type=str,
                         help="path to template image")
     args = parser.parse_args()
 
@@ -280,10 +326,20 @@ if __name__ == "__main__":
     # 创建合成算法类
     faceMergeSwap = FaceMergeSwap()
     # print(faceMergeSwap.OVERLAY_POINTS)
+    # image_template_LUTED = faceMergeSwap.imageLUT(image_template)
+    # cv2.waitKey()
+    image_ref_LUTED = faceMergeSwap.imageLUT(image_ref)
+    # imeq, imclahe=faceMergeSwap.imageCLAHE(image_ref)
 
     image_swaped = faceMergeSwap.swap(image_template, image_ref, landmarks_template, landmarks_ref)
+    image_swaped_luted = faceMergeSwap.swap(image_template, image_ref_LUTED, landmarks_template, landmarks_ref)
     
-    cv2.imshow("image_swaped", image_swaped)
+    cv2.imshow("image_swaped", np.hstack([image_swaped, image_swaped_luted]))
+
+    # image_swaped_eq = faceMergeSwap.swap(image_template, imeq, landmarks_template, landmarks_ref)
+    # image_swaped_clahe = faceMergeSwap.swap(image_template, imclahe, landmarks_template, landmarks_ref)
+    # cv2.imshow("image_swaped_eq", image_swaped_eq)
+    # cv2.imshow("image_swaped_clahe", image_swaped_clahe)
     cv2.waitKey()
     
 

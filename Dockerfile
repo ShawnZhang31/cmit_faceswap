@@ -11,7 +11,7 @@ RUN apt-get install python3-opencv -y
 
 WORKDIR /cmit_faceswap
 # WORKDIR /cmit_faceswap
-COPY . ./
+COPY . .
 
 
 # 时区设置

@@ -1,7 +1,8 @@
 # 路由
+from logging import DEBUG
 import os
 import yaml
-from flask import request
+from flask import request, current_app
 from . import main
 import base64
 import cv2
@@ -281,6 +282,7 @@ def faceswap_v1(*args, **kwargs):
 
 
     # 获取模板图像
+    
     template_img, template_face, template_hair_mask = getTemplateImages(template, image_ref_gender)
 
     # 开始进行合成前的检测
@@ -293,10 +295,8 @@ def faceswap_v1(*args, **kwargs):
     landmarks_ref = FaceDetectTool.detectFaceLandmarks(image_ref, facebox=face_bboxes_ref)
     
     # 处于debug模式下可以打印合成中间图
-    app_debug = os.getenv('DEBUG') or False
-
     # 测试用户提交的图片的识别情况
-    if app_debug:
+    if current_app.config['DEBUG']:
         image_ref_copied = image_ref.copy()
         FaceDetectTool._drawFaceBox(image_ref_copied, face_bboxes_ref)
         FaceDetectTool._drawFaceLandmark(image_ref_copied, landmarks_ref)
@@ -308,8 +308,8 @@ def faceswap_v1(*args, **kwargs):
     landmarks_template = FaceDetectTool.detectFaceLandmarks(template_face, facebox=face_bboxes_template[0])
 
     # 测试模板图像的识别情况
-    if app_debug:
-        image_template_copied = template_img.copy()
+    if current_app.config['DEBUG']:
+        image_template_copied = template_face.copy()
         FaceDetectTool._drawFaceBox(image_template_copied, face_bboxes_template[0])
         FaceDetectTool._drawFaceLandmark(image_template_copied, landmarks_template)
         cv2.imwrite("image_template_detected.jpg", image_template_copied)
@@ -317,6 +317,8 @@ def faceswap_v1(*args, **kwargs):
     # 开始进行合成
     # 创建合成算法类
     faceMergeSwap = FaceMergeSwap(FEATHER_AMOUNT=swaped_value)
+    # 进行一次高光剔除
+    image_ref = faceMergeSwap.imageLUT(image_ref)
     image_swaped = faceMergeSwap.swap(template_face, image_ref, landmarks_template, landmarks_ref)
 
     # 与头发融合
@@ -327,7 +329,7 @@ def faceswap_v1(*args, **kwargs):
     merge = template_img * template_hair_mask + image_swaped * (1.0 - template_hair_mask)
     merge = merge.astype(np.uint8)
     
-    if app_debug:
+    if current_app.config['DEBUG']:
         cv2.imwrite("./merge.jpg", merge)
 
     base64_string = base64EncodeImage(merge, file_ext=swaped_image_ext)
@@ -354,7 +356,7 @@ def face_swap_detect(image_ref):
     face_bboxes, face_eulerangles = FaceDetectTool.detectFace(image_ref, with_angle=True)
 
     if len(face_bboxes) <=0: # 未检测到人脸
-        resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
+        resp['code'] = API_RESPONE_CODE.IMAGE_NOFACE
         resp['error'] = "图像中未检测的人脸"
         resp['face']=None
         return json.dumps(resp)
@@ -362,22 +364,25 @@ def face_swap_detect(image_ref):
         face_box = face_bboxes[0]
 
         if face_box[0] <=0 or face_box[1] <=0:
-            resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
+            resp['code'] = API_RESPONE_CODE.FACE_OUTREGION
             resp['error'] = "图像虽然检测到人脸, 但面部部分特征点超出了图像区域，不符合合成要求"
             resp['face']=None
             return json.dumps(resp)
 
         face_euler_angle = face_eulerangles[0]
         if face_euler_angle is None:
-            resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
+            resp['code'] = API_RESPONE_CODE.FACE_NOLANDMARKS
             resp['error'] = "图像虽然检测到人脸，但无法计算面部欧拉角,不符合合成要求"
             resp['face']=None
             return json.dumps(resp)
         else:
 
-            face_orientation_check, reason = checkFaceOrientation(face_euler_angle)
+            face_orientation_check, reason, left_right = checkFaceOrientation(face_euler_angle)
             if face_orientation_check == False:
-                resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
+                if left_right:
+                    resp['code'] = API_RESPONE_CODE.FACE_LEFT_RIGHT_ROTATION
+                else:
+                    resp['code'] = API_RESPONE_CODE.FACE_UP_DOWN_ROTATION
                 resp['error'] = "图像虽然检测到人脸, 但面部旋转角度超出设定阈值, "+reason
                 resp['face']=None
                 return json.dumps(resp)
@@ -404,10 +409,13 @@ def checkFaceOrientation(euler_angles):
         f.close()
     status = True
     reason = None
+    left_right=False
     if math.fabs(euler_angles['pitch']) >= face_thres['pitch']:
         status = False
         reason = "请不要低头或抬头, 请正对摄像头"
+        left_right=False
     if math.fabs(euler_angles['yaw']) >= face_thres['yaw']:
         status = False
         reason = "请不要左右转头, 请正对摄像头"
-    return status, reason
+        left_right=True
+    return status, reason, left_right

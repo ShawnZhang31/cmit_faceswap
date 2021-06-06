@@ -361,7 +361,7 @@ face | dict/null| 是| 未检测到人脸是为null，当检测到人脸并且�
 
 ## 4. 更新说明
 - **2020-06-06**
-    - 使用LUT方法降低seamlessClone时高光过量的问题
+    - 使用LUT方法降低seamlessClone时高光过亮的问题
     - 增加人脸检测接口`/api/v1/face_detect`
     - 为`/api/v1/faceswap`接口增加参数
         - 增加`gender`参数，控制合成时使用的模板
@@ -369,6 +369,7 @@ face | dict/null| 是| 未检测到人脸是为null，当检测到人脸并且�
         - 增加`swaped_image_ext`参数，控制合成图像编码
     - 优化识别合成效率，使算法效率提升48%
     - 优化合成效果
+    - 修复了大尺寸图像合成的时候算子溢出的问题
 
 
 ## 5. TODO 

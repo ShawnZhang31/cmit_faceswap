@@ -265,7 +265,7 @@ v1版本的面部融合接口
 image_ref | base64 str | 是 | 用于合成的图像，使用Base64对图像进行编码；目前仅支持通道为1、3、4的图像；最好提交jpg/jpeg格式的图像，人脸最好正对摄像头
 template_name | str | 是 | 提前配置进应用中的模板的名称
 gender | str | 否 | 用户性别，可选值只能是`female`或`male`，如果用户提交的为其他的值或者不提交，则应用自动检测提交的图像中的人物性别
-swaped_value | int | 否 | 控制合成效果，取值范围为`[11,61]`, 数值越大越接近`image_ref`的风格，越小越接近`template`的风格，如不提交则默认为31
+swaped_value | int | 否 | 控制合成效果，取值范围为`[11,31]`, 数值越大越接近`image_ref`的风格，越小越接近`template`的风格，如不提交则默认为21
 swaped_image_ext | str | 否 | 合成图像的编码格式，默认为`png`，目前只支持`jpg`和`png`
 
 - 返回结果      

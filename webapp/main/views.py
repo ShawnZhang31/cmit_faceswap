@@ -256,18 +256,18 @@ def faceswap_v1(*args, **kwargs):
         try:
             swaped_value = int(swaped_value)
         except Exception:
-            swaped_value = 39
+            swaped_value = 21
 
     if swaped_value is None:    # 默认是21
-        swaped_value = 39
+        swaped_value = 21
     
     if swaped_value%2 == 0:     # 必须是奇数
         swaped_value += 1
 
-    if swaped_value < 31:       # 不能小于11
-        swaped_value = 31
-    if swaped_value > 61:       # 不能大于31
-        swaped_value = 61 
+    if swaped_value < 13:       # 不能小于11
+        swaped_value = 13
+    if swaped_value > 31:       # 不能大于31
+        swaped_value = 31 
 
     # 检测文件后缀名
     swaped_image_ext = None
@@ -319,8 +319,7 @@ def faceswap_v1(*args, **kwargs):
     faceMergeSwap = FaceMergeSwap(FEATHER_AMOUNT=swaped_value)
     # 进行一次高光剔除
     image_ref = faceMergeSwap.imageLUT(image_ref)
-    image_swaped = faceMergeSwap.swap(template_face, image_ref, landmarks_template, landmarks_ref)
-
+    image_swaped = faceMergeSwap.swap(template_face, image_ref, landmarks_template, landmarks_ref, method="affline")
     # 与头发融合
     template_img = template_img.astype(np.float64)
     image_swaped = image_swaped.astype(np.float64)

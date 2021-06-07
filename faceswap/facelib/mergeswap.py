@@ -234,7 +234,7 @@ class FaceMergeSwap(object):
 
     def imageLUT(self, image):
         originalValue = np.array([0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 255])
-        adjustCurve = np.array([0, 25, 50, 75, 100, 120, 140, 150, 170, 190, 210, 255])
+        adjustCurve = np.array([0, 25, 50, 75, 100, 120, 140, 150, 170, 200, 210, 230])
         # adjustCurve = np.array([0, 50, 100, 150, 175, 210])
         # adjustCurve = np.array([0, 50, 100, 140, 150, 230])
         # adjustCurve = np.array([0, 20,  40,  75, 150, 175])
@@ -284,7 +284,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='cmit face swap')
     parser.add_argument('-i', '--image_path', default='./docs/test_imgs/uuxm.jpeg', type=str,
                         help='path to input image')
-    parser.add_argument('-t', '--template_path', default='./res/templates/template1/female/female.jpg', type=str,
+    parser.add_argument('-t', '--template_path', default='./res/templates/template2/female/female.jpg', type=str,
                         help="path to template image")
     args = parser.parse_args()
 
@@ -324,15 +324,15 @@ if __name__ == "__main__":
     # print(face_bboxes_template, face_angles_template)
 
     # 创建合成算法类
-    faceMergeSwap = FaceMergeSwap()
+    faceMergeSwap = FaceMergeSwap(FEATHER_AMOUNT=11)
     # print(faceMergeSwap.OVERLAY_POINTS)
     # image_template_LUTED = faceMergeSwap.imageLUT(image_template)
     # cv2.waitKey()
     image_ref_LUTED = faceMergeSwap.imageLUT(image_ref)
     # imeq, imclahe=faceMergeSwap.imageCLAHE(image_ref)
 
-    image_swaped = faceMergeSwap.swap(image_template, image_ref, landmarks_template, landmarks_ref)
-    image_swaped_luted = faceMergeSwap.swap(image_template, image_ref_LUTED, landmarks_template, landmarks_ref)
+    image_swaped = faceMergeSwap.swap(image_template, image_ref_LUTED, landmarks_template, landmarks_ref)
+    image_swaped_luted = faceMergeSwap.swap(image_template, image_ref_LUTED, landmarks_template, landmarks_ref, method="affline")
     
     cv2.imshow("image_swaped", np.hstack([image_swaped, image_swaped_luted]))
 

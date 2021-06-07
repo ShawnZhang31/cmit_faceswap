@@ -45,6 +45,7 @@ def tempate_required_withkey(tempalte_key):
                 return json.dumps(resp)
             else:
                 kwargs['template']=templates
+                kwargs['template_name']=tempalte_name
             return f(*args, **kwargs)
         return decorate_function
     return tempate_required_withkey_decorator

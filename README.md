@@ -239,7 +239,8 @@ stderr_logfile=${项目根目录}/logs/gunicorn.err
 ![supervisor](./docs/supervisor.png)
 
 ## 3. 接口说明
-返回码`code`说明:
+返回码`code`说明:   
+
 code | 说明
 :----- | :----- 
 200 | 请求成功，图像检测或合成成功

@@ -197,7 +197,12 @@ class FaceMergeSwap(object):
 
         return image_tempalted_Warped, overlayed_mask
 
-
+    def imageAfflined(self, image_template, image_ref, image_tempalted_landmarks, image_ref_landmarks):
+        image_ref_afflined, overlayed_mask = self.getAffineWrapedImageAndMask(image_template, 
+                                                                                        image_ref, 
+                                                                                        image_tempalted_landmarks,
+                                                                                        image_ref_landmarks)
+        return image_ref_afflined
 
     def swap(self, image_template, image_ref, image_tempalted_landmarks, image_ref_landmarks, method="delanu"):
         """根据指定的轮廓进行面部融合"""
@@ -324,17 +329,25 @@ if __name__ == "__main__":
     # print(face_bboxes_template, face_angles_template)
 
     # 创建合成算法类
-    faceMergeSwap = FaceMergeSwap(FEATHER_AMOUNT=11)
+    faceMergeSwap = FaceMergeSwap(FEATHER_AMOUNT=21)
     # print(faceMergeSwap.OVERLAY_POINTS)
     # image_template_LUTED = faceMergeSwap.imageLUT(image_template)
     # cv2.waitKey()
     image_ref_LUTED = faceMergeSwap.imageLUT(image_ref)
+    # image_ref_LUTED = image_ref.copy()
     # imeq, imclahe=faceMergeSwap.imageCLAHE(image_ref)
 
     image_swaped = faceMergeSwap.swap(image_template, image_ref_LUTED, landmarks_template, landmarks_ref)
     image_swaped_luted = faceMergeSwap.swap(image_template, image_ref_LUTED, landmarks_template, landmarks_ref, method="affline")
+
+    image_ref_afflined = faceMergeSwap.imageAfflined(image_template, image_ref_LUTED, landmarks_template, landmarks_ref)
+    cv2.imshow("image_ref_afflined", image_ref_afflined)
+    face_bboxes_ref, face_angles_ref = faceDetector.detectFace(image_ref_afflined, with_angle=True)
+    landmarks_ref = faceDetector.detectFaceLandmarks(image_ref_afflined, facebox=face_bboxes_ref[0])
+    image_swaped_afflined = faceMergeSwap.swap(image_template, image_ref_afflined, landmarks_template, landmarks_ref)
+
     
-    cv2.imshow("image_swaped", np.hstack([image_swaped, image_swaped_luted]))
+    cv2.imshow("image_swaped", np.hstack([image_swaped, image_swaped_luted, image_swaped_afflined]))
 
     # image_swaped_eq = faceMergeSwap.swap(image_template, imeq, landmarks_template, landmarks_ref)
     # image_swaped_clahe = faceMergeSwap.swap(image_template, imclahe, landmarks_template, landmarks_ref)

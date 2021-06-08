@@ -360,7 +360,8 @@ def face_swap_detect(image_ref):
 
     if len(face_bboxes) <=0: # 未检测到人脸
         resp['code'] = API_RESPONE_CODE.IMAGE_NOFACE
-        resp['error'] = "图像中未检测的人脸"
+        # resp['error'] = "图像中未检测到人脸"
+        resp['error'] = "没检测到你的脸喔，换一张试试"
         resp['face']=None
         return json.dumps(resp)
     else:
@@ -368,14 +369,16 @@ def face_swap_detect(image_ref):
 
         if face_box[0] <=0 or face_box[1] <=0:
             resp['code'] = API_RESPONE_CODE.FACE_OUTREGION
-            resp['error'] = "图像虽然检测到人脸, 但面部部分特征点超出了图像区域，不符合合成要求"
+            # resp['error'] = "图像虽然检测到人脸, 但面部部分特征点超出了图像区域，不符合合成要求"
+            resp['error'] = "面部部分特征点超出了图像区域，换一张试试"
             resp['face']=None
             return json.dumps(resp)
 
         face_euler_angle = face_eulerangles[0]
         if face_euler_angle is None:
             resp['code'] = API_RESPONE_CODE.FACE_NOLANDMARKS
-            resp['error'] = "图像虽然检测到人脸，但无法计算面部欧拉角,不符合合成要求"
+            # resp['error'] = "图像虽然检测到人脸，但无法计算面部欧拉角,不符合合成要求"
+            resp['error'] = "面部特征不符合合成要求，换一张试试"
             resp['face']=None
             return json.dumps(resp)
         else:
@@ -386,7 +389,8 @@ def face_swap_detect(image_ref):
                     resp['code'] = API_RESPONE_CODE.FACE_LEFT_RIGHT_ROTATION
                 else:
                     resp['code'] = API_RESPONE_CODE.FACE_UP_DOWN_ROTATION
-                resp['error'] = "图像虽然检测到人脸, 但面部旋转角度超出设定阈值, "+reason
+                # resp['error'] = "图像虽然检测到人脸, 但面部旋转角度超出设定阈值, "+reason
+                resp['error'] = "发现你的脸角度有点偏呢，换一张正脸照试试"
                 resp['face']=None
                 return json.dumps(resp)
             else:

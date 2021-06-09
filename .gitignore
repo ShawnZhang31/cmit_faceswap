@@ -126,7 +126,7 @@ dmypy.json
 
 
 res/templates/*
-!res/templates/template0/*
+!res/templates/template_example/
 !res/templates/templates_example.yaml
 
 docs/test_imgs/*

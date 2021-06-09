@@ -1,12 +1,12 @@
 template0:
   male:
-    img: './res/templates/template1/male/male.jpg'
-    face: './res/templates/template1/male/male_no_hair.jpg'
-    hair: './res/templates/template1/male/hair.jpg'
+    img: './res/templates/template_example/male/male.jpg'
+    face: './res/templates/template_example/male/male_no_hair.jpg'
+    hair: './res/templates/template_example/male/hair.jpg'
   female:
-    img: './res/templates/template1/female/female.jpg'
-    face: './res/templates/template1/female/female_no_hair.jpg'
-    hair: './res/templates/template1/female/hair.jpg'
+    img: './res/templates/template_example/female/female.jpg'
+    face: './res/templates/template_example/female/female_no_hair.jpg'
+    hair: './res/templates/template_example/female/hair.jpg'
 
 template1:
   male:

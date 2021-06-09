@@ -130,6 +130,7 @@ res/templates/*
 !res/templates/templates_example.yaml
 
 docs/test_imgs/*
+docs/test_base64/*
 
 logs/*
 !logs/.gitkeep
@@ -137,5 +138,7 @@ logs/*
 image_ref_detected.jpg
 image_template_detected.jpg
 merge.jpg
+overlayed_mask.jpg
 
+.env
 

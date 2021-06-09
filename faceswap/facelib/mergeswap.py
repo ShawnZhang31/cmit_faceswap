@@ -217,6 +217,7 @@ class FaceMergeSwap(object):
                                                                                         image_tempalted_landmarks,
                                                                                         image_ref_landmarks)
 
+        # cv2.imwrite("overlayed_mask.jpg", overlayed_mask)
         mask_center = self.get_mask_center_point(cv2.cvtColor(overlayed_mask, cv2.COLOR_BGR2GRAY))
         # cv2.circle(overlayed_mask, mask_center, 2, (0, 0, 255), thickness=2)
         # cv2.imshow("overlayed_mask", overlayed_mask)
@@ -239,7 +240,7 @@ class FaceMergeSwap(object):
 
     def imageLUT(self, image):
         originalValue = np.array([0, 25, 50, 75, 100, 125, 150, 175, 200, 225, 250, 255])
-        adjustCurve = np.array([0, 25, 50, 75, 100, 120, 140, 150, 170, 200, 210, 230])
+        adjustCurve = np.array(  [0, 25, 50, 75, 100, 125, 150, 175, 200, 215, 220, 220])
         # adjustCurve = np.array([0, 50, 100, 150, 175, 210])
         # adjustCurve = np.array([0, 50, 100, 140, 150, 230])
         # adjustCurve = np.array([0, 20,  40,  75, 150, 175])
@@ -265,6 +266,7 @@ class FaceMergeSwap(object):
         imLUTed = cv2.cvtColor(imLUTed, cv2.COLOR_Lab2BGR)
         
         return imLUTed
+        # return image
 
 
     def imageCLAHE(self, image):

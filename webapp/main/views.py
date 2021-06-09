@@ -266,8 +266,8 @@ def faceswap_v1(*args, **kwargs):
 
     if swaped_value < 11:       # 不能小于11
         swaped_value = 11
-    if swaped_value > 29:       # 不能大于31
-        swaped_value = 29 
+    if swaped_value > 31:       # 不能大于31
+        swaped_value = 31 
     # 检测文件后缀名
     swaped_image_ext = None
     if 'swaped_image_ext' not in  request.form:
@@ -303,13 +303,14 @@ def faceswap_v1(*args, **kwargs):
     
     # 模板的检测
     # 对模板图像进行检测
-    if kwargs['template_name']=='template2':
+    if kwargs['template_name'] in ['template2', 'template1']:
         template_face_detect = template_img.copy()
     else:
         template_face_detect = template_face.copy()
     face_bboxes_template, face_angles_template = FaceDetectTool.detectFace(template_face_detect, with_angle=False)
     # template_face_gray = cv2.cvtColor(template_face, cv2.COLOR_BGR2GRAY)
     landmarks_template = FaceDetectTool.detectFaceLandmarks(template_face_detect, facebox=face_bboxes_template[0])
+
 
     # 测试模板图像的识别情况
     if current_app.config['DEBUG']:

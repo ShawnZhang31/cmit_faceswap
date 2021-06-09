@@ -30,7 +30,7 @@ class TestingConfig(Config):
 # 生产环境配置
 class ProductionConfig(Config):
     DEBUG = False
-    pass
+    TESTING = False
 
 config = {
     "development": DevelopmentConfig,

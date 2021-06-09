@@ -24,10 +24,10 @@ def image_required_withkey(imageKey='image_ref'):
                 return json.dumps(resp)
             else:
                 image_base64code = request.form.get(imageKey)
-                image = imageFromBase64Code(image_base64code)
+                image, err_msg = imageFromBase64Code(image_base64code)
                 if image is None:
                     resp['code'] = API_RESPONE_CODE.REQUEST_ARGUMENTS_ERROR
-                    resp['error'] = imageKey+"不是一个有效的图像base64编码"
+                    resp['error'] = imageKey+err_msg
                     resp['swaped_image']=None
                     return json.dumps(resp)
                 else:

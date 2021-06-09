@@ -16,14 +16,17 @@ def imageFromBase64Code(img_base64):
     try:
         data = base64.decodebytes(data.encode())
     except Exception:
-        return None
+        return None, "不是一个有效的图像文件"
 
     # 转换为numpy array
     nparr = np.frombuffer(data, np.uint8)
 
     # 读取图片文件
     image = cv2.imdecode(nparr, -1)
-    return image
+    if image is None:
+        return None, "不是一个有效的jpg/jpeg/png格式的图像文件"
+    return image, None
+    # return image
 
 
 def base64EncodeImage(image, with_base64_header=True, file_ext='jpg'):

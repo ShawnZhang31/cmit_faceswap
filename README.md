@@ -32,7 +32,7 @@
 <!-- tocstop -->
 ## 1. 配置说明
 ### 1.1 合成模板配置
-将面部融合的模板放到`./res/templates`目录下面，并更新`./res/templates/templates.yaml`文件中的模板配置
+将面部融合的模板放到`./res/templates`目录下面，并更新`./res/templates/templates.yaml`文件中的模板配置, 如果没有该文件请参考`./res/templates/templates_example.yaml`创建一个
 
 如：该项目中配置了演示用模板template1，并在模板将template1的配置信息写入`./res/templates/templates.yaml`文件中      
 ```yaml

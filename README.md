@@ -47,7 +47,7 @@ template1: # 模板名称，这个名称非常重要，后面调用接口的时�
     hair: './res/templates/template1/female/hair.jpg' # 头发/头饰的mask，注意头发/头饰区域为白色，其他部分全部应设置为黑色
 ```
 ### 1.2 人脸欧拉转动角配置
-在`./res/face/face.yaml`中可以看到人脸转动欧拉角配置，配置说明如下：    
+参考`./res/face/face_example.yaml`创建`./res/face/face.yaml`文件，并在其中配置人脸转动欧拉角的阈值，配置说明如下：    
 ```yaml
 angle:
   pitch: 21 #绕x轴旋转的最大允许角度

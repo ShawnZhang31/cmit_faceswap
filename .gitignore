@@ -128,6 +128,7 @@ dmypy.json
 res/templates/*
 !res/templates/template_example/
 !res/templates/templates_example.yaml
+res/face/face.yaml
 
 docs/test_imgs/*
 docs/test_base64/*

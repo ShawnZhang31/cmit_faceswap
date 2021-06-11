@@ -212,7 +212,7 @@ def faceswap_v1(*args, **kwargs):
     #检查提交参数
     image_ref = kwargs['image_ref']
     template = kwargs['template']
-
+    # cv2.imwrite("image_ref.jpg", image_ref)
     # 返回体
     resp={}
     resp['code'] = API_RESPONE_CODE.API_RESPONE_SUCCESS

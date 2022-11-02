@@ -63,7 +63,7 @@ PS:头部旋转姿态欧拉角说明如下:
 参照`./.env_example`在项目根目录创建`.env`文件，在`.env`文件中设置环境变量，下面是项目中自带一个.env文件，如果懒的话，可以只替换一下`SECRET_KEY`        
 
 ```env
-APP_CONFIG=production #部署环境：production-生产环境;development-开发环境；testing-测出环境
+APP_CONFIG=production #部署环境：production-生产环境;development-开发环境；testing-测试环境
 SECRET_KEY=fadfascsvasdfahudquerw22wxvZf    # 墙裂建议生产部署的适合替换SECRET_KEY
 
 DLIB_FACE_LANDMARK_SHAPE_FILE_PATH=./res/dlib/shape_predictor_68_face_landmarks.dat #dlib face landmark模型路径

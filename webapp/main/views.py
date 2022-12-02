@@ -303,10 +303,12 @@ def faceswap_v1(*args, **kwargs):
     
     # 模板的检测
     # 对模板图像进行检测
-    if kwargs['template_name'] in ['template2', 'template1']:
-        template_face_detect = template_img.copy()
-    else:
-        template_face_detect = template_face.copy()
+    # if kwargs['template_name'] in ['template2', 'template1']:
+    #     template_face_detect = template_img.copy()
+    # else:
+    #     template_face_detect = template_face.copy()
+    # 按照晓鸿的要求使用光头来做检测
+    template_face_detect = template_face.copy()
     face_bboxes_template, face_angles_template = FaceDetectTool.detectFace(template_face_detect, with_angle=False)
     # template_face_gray = cv2.cvtColor(template_face, cv2.COLOR_BGR2GRAY)
     landmarks_template = FaceDetectTool.detectFaceLandmarks(template_face_detect, facebox=face_bboxes_template[0])
